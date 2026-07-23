@@ -1,355 +1,291 @@
-# 🚀 ADO Planner
-
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Azure OpenAI](https://img.shields.io/badge/Azure_OpenAI-LLM-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
-![LangGraph](https://img.shields.io/badge/LangGraph-Multi--Agent-blue?style=for-the-badge)
-![LangChain](https://img.shields.io/badge/LangChain-Framework-success?style=for-the-badge)
-![Azure DevOps](https://img.shields.io/badge/Azure_DevOps-Integration-0078D7?style=for-the-badge&logo=azuredevops&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
-![License](https://img.shields.io/badge/License-Internal-red?style=for-the-badge)
+# 📋 ADO Planner
 
-### **AI-Powered Multi-Agent Sprint Planning System for Azure DevOps**
+### AI-Assisted Sprint Planning for Azure DevOps
 
-*Automating sprint planning using Large Language Models, Multi-Agent Systems, and Intelligent Workflow Orchestration.*
+*A multi-agent LLM pipeline that automates sprint estimation, selection, assignment, and rebalancing — with a human always in the loop before anything touches Azure DevOps.*
+
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Orchestration-1C3C3C?style=flat-square)](https://www.langchain.com/langgraph)
+[![Azure OpenAI](https://img.shields.io/badge/Azure-OpenAI-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
+[![Azure DevOps](https://img.shields.io/badge/Azure-DevOps-0078D7?style=flat-square&logo=azuredevops&logoColor=white)](https://azure.microsoft.com/en-us/products/devops)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
 </div>
 
----
-
-# 📖 Overview
-
-ADO Planner is an enterprise-grade **AI-powered Sprint Planning System** developed to automate one of the most time-consuming activities in Agile Software Development.
-
-Traditional sprint planning requires project managers and team leads to manually:
-
-- Estimate work items
-- Select backlog items
-- Check team capacity
-- Assign work
-- Validate workload
-- Balance developer utilization
-- Iterate based on stakeholder feedback
-
-For medium and large software teams, this process often requires several hours every sprint and is heavily dependent on the experience of project managers.
-
-ADO Planner transforms this workflow into an intelligent, AI-driven pipeline capable of generating an optimized sprint plan in minutes while ensuring that humans remain in complete control of the final decision.
-
-The system combines **Large Language Models**, **LangGraph**, **Azure DevOps**, **Azure Blob Storage**, and **Human-in-the-Loop workflows** to produce production-ready sprint plans with minimal manual intervention.
+> **📌 About this repository**
+> This repo contains the full documentation and architecture for **ADO Planner**. The source code lives in a private repository. Reach out if you'd like a walkthrough or a closer look at the implementation.
 
 ---
 
-# 🎯 Problem Statement
+## Table of Contents
 
-Sprint planning is one of the most important activities in Agile development.
-
-However, it suffers from several challenges:
-
-- Manual effort
-- Subjective decision making
-- Poor workload balancing
-- Uneven capacity utilization
-- Knowledge dependency on project managers
-- Difficulties scaling to large backlogs
-- Multiple iterations before finalization
-
-These challenges become increasingly significant as:
-
-- Team size increases
-- Backlog grows
-- Sprint complexity rises
-- Cross-team dependencies emerge
-
-ADO Planner addresses these challenges using an intelligent multi-agent architecture capable of reasoning over project context and automatically generating optimized sprint plans.
+- [Why ADO Planner](#-why-ado-planner)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Agent Pipeline](#-agent-pipeline)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [Running the App](#-running-the-app)
+- [Docker](#-docker)
+- [Application Walkthrough](#-application-walkthrough)
+- [Data & Persistence](#-data--persistence)
 
 ---
 
-# ✨ Key Features
+## 🎯 Why ADO Planner
 
-## 🤖 Multi-Agent AI Architecture
+Sprint planning in Azure DevOps is usually a manual, spreadsheet-heavy process — someone estimates effort, someone else decides what fits in the sprint, and someone manually assigns tasks while trying to keep workloads balanced.
 
-Instead of relying on one large prompt, the system decomposes sprint planning into specialized AI agents, each responsible for a single task.
+**ADO Planner automates that workflow end-to-end**, while keeping a human firmly in control of the final decision. Nothing is written back to Azure DevOps until a plan is explicitly reviewed and accepted.
 
-Examples include:
+## ✨ Key Features
 
-- Estimation
-- Backlog Selection
-- Task Assignment
-- Validation
-- Rebalancing
+| | |
+|---|---|
+| 🔗 **Live Azure DevOps integration** | Pulls iterations, backlog, work items, and team members via ADO REST APIs (WIQL-based queries) and normalizes them into a consistent internal schema. |
+| 🧠 **Multi-agent LLM pipeline** | Dedicated agents for estimation, selection, assignment, validation, and rebalancing, orchestrated as a LangGraph state machine with deterministic guardrails around every LLM call. |
+| 👤 **Human-in-the-loop review** | Every generated plan can be accepted, edited (with a natural-language rebalance instruction), or rejected before anything is persisted or pushed to ADO. |
+| ⚖️ **Capacity-aware assignment** | Task-level (not story-atomic) capacity enforcement, day-wise 8h/day scheduling with spillover detection, and utilization-balanced assignment across team members. |
+| 🗣️ **Natural-language rebalancing** | Instructions like *"move dashboard tasks from Alex to Priya"* are parsed with an LLM-first + deterministic-fallback parser so rebalances are both flexible and safe. |
+| 📊 **Analytics & AI insights** | Velocity, workload, and backlog analytics with LLM-generated narrative commentary. |
+| 💾 **Zero-database persistence** | CSV snapshots stored locally and mirrored to Azure Blob Storage — no database provisioning required. |
+| 🔁 **Push-back to Azure DevOps** | Accepted plans can create/update sprint iterations and patch work items (iteration path, assignee, remaining/original work) directly in ADO. |
 
-This modular architecture improves scalability, maintainability, explainability, and overall planning quality.
-
----
-
-## 🧠 AI-Powered Decision Making
-
-The planner leverages Azure OpenAI models to perform reasoning-intensive tasks such as:
-
-- Story Point Estimation
-- Sprint Item Selection
-- Intelligent Assignment
-- Plan Validation
-- Feedback Interpretation
-
-Instead of hard-coded rules, the system makes context-aware decisions based on project data.
-
----
-
-## 🔄 LangGraph Orchestration
-
-Unlike traditional sequential pipelines, every planning stage is orchestrated using LangGraph.
-
-This enables:
-
-- Stateful execution
-- Conditional routing
-- Retry mechanisms
-- Feedback loops
-- Human intervention
-- Dynamic workflows
-
----
-
-## 👨‍💻 Human-in-the-Loop (HITL)
-
-Automation should assist humans—not replace them.
-
-Users can:
-
-- ✅ Accept the generated sprint
-- ✏️ Edit assignments
-- ❌ Reject the plan
-- 💬 Provide feedback
-
-The system automatically incorporates feedback and generates an improved sprint plan.
-
----
-
-## 📊 Capacity-Aware Planning
-
-Every sprint plan considers:
-
-- Team capacity
-- Individual availability
-- Existing workload
-- Story point limits
-- Sprint utilization
-
-This prevents overloading developers while maximizing overall productivity.
-
----
-
-## ⚖️ Intelligent Workload Balancing
-
-The Assignment Agent optimizes work distribution by considering:
-
-- Developer expertise
-- Current workload
-- Capacity
-- Historical ownership
-- Skill alignment
-
-Resulting in fair and balanced sprint plans.
-
----
-
-## ☁ Azure DevOps Integration
-
-The planner integrates directly with Azure DevOps to retrieve:
-
-- Product Backlog
-- Sprint Backlog
-- Team Members
-- Capacity Information
-- Work Items
-- Story Points
-- Task Metadata
-
-allowing planning to be performed on live project data.
-
----
-
-## 📁 Azure Blob Storage
-
-Intermediate and final outputs are stored securely using Azure Blob Storage.
-
-Benefits include:
-
-- Persistent planning state
-- Reusability
-- Auditability
-- Version management
-- Cloud accessibility
-
----
-
-# 🚀 Results
-
-| Metric | Before | After |
-|----------|---------|--------|
-| Sprint Planning Time | ~6 Hours | ~15 Minutes |
-| Manual Assignment | 100% | Automated |
-| Capacity Validation | Manual | Automatic |
-| Workload Distribution | Manual | AI Optimized |
-| Human Review | Required | Required |
-| Planning Consistency | Moderate | High |
-
----
-
-# 🏗 System Architecture
-
-```text
-                        Azure DevOps
-                             │
-                             │
-                  Fetch Backlog & Capacity
-                             │
-                             ▼
-                    Data Preparation Layer
-                             │
-                             ▼
-                  Global Shared Planning State
-                             │
-                             ▼
-        ┌──────────────────────────────────────┐
-        │         LangGraph Workflow           │
-        └──────────────────────────────────────┘
-                             │
-                             ▼
-                   Estimation Agent
-                             │
-                             ▼
-                    Selection Agent
-                             │
-                             ▼
-                   Assignment Agent
-                             │
-                             ▼
-                    Validation Agent
-                             │
-                             ▼
-                  Human-in-the-Loop Review
-                  ┌───────────┴────────────┐
-                  │                        │
-             Accept Plan            Reject / Edit
-                  │                        │
-                  ▼                        ▼
-          Save Sprint Plan        Rebalance Agent
-                  │                        │
-                  └──────────────┬─────────┘
-                                 ▼
-                       Final Sprint Plan
-                                 │
-                                 ▼
-                     Azure Blob Storage
-```
-
----
-
-# 🧩 High-Level Workflow
+## 🏗 Architecture
 
 ```mermaid
 flowchart TD
+    subgraph UI["Streamlit UI (ui/)"]
+        A[Generate Sprint Plan]
+        B[Analytics View]
+        C[Data View]
+    end
 
-A[Azure DevOps]
+    subgraph Orchestration["LangGraph Orchestrator (agents/main.py)"]
+        D[Estimation Agent]
+        E[Selection Agent]
+        F[Assignment Agent]
+        G[Validation Agent]
+        H[Human Review Node]
+        I[Rebalance Agent]
+    end
 
-A --> B[Load Backlog]
+    subgraph Integrations["Integrations"]
+        J[Azure DevOps REST API]
+        K[Azure Blob Storage]
+        L[Azure OpenAI]
+        M[Local CSV Snapshots]
+    end
 
-B --> C[Estimate Missing Story Points]
+    A --> Orchestration
+    D --> E --> F --> G
+    G -->|valid| H
+    G -->|issues| I --> G
+    H -->|accept| K
+    H -->|accept| M
+    H -->|edited| I
+    H -->|reject| End([Stop])
+    H -->|push to ADO| J
 
-C --> D[Select Sprint Items]
+    C --> J
+    C --> K
+    B --> L
 
-D --> E[Intelligent Assignment]
-
-E --> F[Validate Sprint]
-
-F --> G{User Review}
-
-G -->|Accept| H[Save Sprint]
-
-G -->|Reject| I[Rebalance]
-
-I --> E
+    D & E & F & G & I -.LLM calls.-> L
 ```
 
----
+**Layers:**
 
-# 🏛 Multi-Agent Architecture
+1. **UI layer (Streamlit)** — project selection, data views, sprint configuration, plan review, and analytics dashboards.
+2. **Orchestration layer (LangGraph)** — a single top-level state graph (`agents/main.py`) that sequences the planning agents and routes between validation, human review, and rebalancing.
+3. **Agent layer** — five purpose-built agents, each with its own LangGraph sub-graph, prompt builder, and typed state contract.
+4. **Integration layer** — Azure DevOps (read/write), Azure Blob Storage (snapshots), and Azure OpenAI (LLM calls).
+5. **Tooling layer** — capacity math, JSON extraction/repair, and state mutation helpers shared across agents.
 
-The planner consists of multiple specialized agents working collaboratively.
+## 🔄 Agent Pipeline
 
-| Agent | Responsibility |
-|--------|---------------|
-| Data Agent | Retrieves Azure DevOps data |
-| Estimation Agent | Estimates missing story points |
-| Selection Agent | Selects backlog items for sprint |
-| Assignment Agent | Assigns work intelligently |
-| Validation Agent | Validates generated sprint |
-| Rebalance Agent | Improves sprint based on validation and user feedback |
+The orchestrator graph in `agents/main.py` drives the full planning lifecycle:
 
-Each agent performs a single well-defined task while sharing information through a centralized planning state.
-
----
-
-# 🔄 Planning Pipeline
-
-```
-Azure DevOps
-
-↓
-
-Fetch Backlog
-
-↓
-
-Generate Missing Estimates
-
-↓
-
-Select Sprint Backlog
-
-↓
-
-Assign Developers
-
-↓
-
-Validate Plan
-
-↓
-
-Human Review
-
-↓
-
-Approve / Reject
-
-↓
-
-Rebalance (if needed)
-
-↓
-
-Store Final Sprint
+```mermaid
+flowchart LR
+    START --> Estimation --> Selection --> Assignment --> Validation
+    Validation -- valid --> HumanReview
+    Validation -- issues found --> Rebalance --> Validation
+    HumanReview -- accept --> Persist[Persist Plan + Enable ADO Push]
+    HumanReview -- edited + instruction --> Rebalance
+    HumanReview -- reject --> Stop([End])
 ```
 
+| Agent | Module | Responsibility |
+| --- | --- | --- |
+| **Estimation** | `agents/logic/estimation_agent.py` | Fills missing effort estimates, priority, and risk; enforces hierarchy consistency (parent ≥ sum of children); skips the LLM entirely when all items already have complete data. Supports 0.5h increments. |
+| **Selection** | `agents/logic/selection_agent.py` | Chooses which backlog tasks fit the sprint, keeping total selected hours within a target band (~150%–160% of capacity) and only ever selecting `Task`-type items. |
+| **Assignment** | `agents/logic/assignment_agent.py` | Assigns tasks to team members using LLM-guided, capacity-validated decisions with a deterministic scoring fallback (skill, preference, experience, capacity fit, story continuity). Produces day-wise 8h/day schedules and spillover when capacity is exceeded. |
+| **Validation** | `agents/logic/validation_agent.py` | Checks assignment completeness, task validity (only tasks assigned, never stories/features/epics), and story grouping — scoped intentionally to avoid endless rebalance loops over unavoidable imbalance. |
+| **Rebalance** | `agents/logic/rebalance_agent.py` | Re-distributes work in response to validation issues or a free-text user instruction, using an LLM-first parser with deterministic fallback extraction (target user, story/task IDs, keywords) for safe, explicit execution. |
+
+Each agent lives under `agents/logic/`, with its prompt builder in `agents/prompts/` and its typed state contract in `agents/states/`. The orchestrator caps rebalance loops at 3 iterations and short-circuits when a rebalance pass produces no material change.
+
+## 🧰 Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| UI | [Streamlit](https://streamlit.io/) |
+| Agent orchestration | [LangGraph](https://www.langchain.com/langgraph) |
+| LLM provider | Azure OpenAI |
+| Source data | Azure DevOps REST APIs (WIQL, work items, iterations, teams) |
+| Persistence | CSV files + Azure Blob Storage |
+| Data processing | Pandas |
+| Charts | Plotly / Altair (via Streamlit) |
+| Runtime | Python 3.11 |
+| Containerization | Docker |
+
+## 📁 Project Structure
+
+```
+agents/                     # LangGraph orchestrator + individual planning agents
+  main.py                   # Top-level orchestrator graph (estimation -> ... -> rebalance)
+  logic/                    # Agent implementations (estimation, selection, assignment, validation, rebalance)
+  prompts/                  # Prompt builders per agent
+  states/                   # Typed state contracts (TypedDict) per agent + global state
+  utils/                    # Agent-level helper utilities
+
+services/                   # Integration + business logic services
+  ado_client.py              # Azure DevOps REST client (read + write)
+  blob_service.py             # Azure Blob Storage read/write for snapshots
+  csv_service.py               # Local CSV persistence (data/<project>/...)
+  data_normalizer.py           # Raw ADO payload -> normalized schema
+  preprocess_service.py        # Task preprocessing/grouping for planning
+  daywise_scheduler.py         # AI-assisted day-wise task scheduling
+  llm_service.py               # Azure OpenAI call gateway
+  ai_analytics.py               # LLM-generated analytics commentary
+  analytics_engine.py            # Deterministic analytics metrics
+
+tools/                      # Shared low-level utilities used by agents
+  capacity_tool.py            # Member/team capacity calculation
+  state_tool.py                # State mutation helpers (assign, spillover, reasons)
+  state_initializer_tool.py     # Global state bootstrap
+  json_tools.py                  # Robust LLM JSON extraction/repair
+  blob_tool.py                    # Plan/estimate save-load helpers
+
+ui/                         # Streamlit application
+  streamlit_app.py            # Entry point, auth gate, project selection, tab routing
+  tabs/
+    sprint_planner_tab/        # Sprint configuration, plan generation, HIL review, ADO push
+    analytics_tab/               # Velocity/workload/backlog analytics + AI insights
+    data_tab/                     # Raw/normalized data browsing and hierarchy view
+    test_tab/                      # Local assignment-agent testing harness
+  utils/                     # UI helper utilities (data resolution, context generation)
+
+schema/                     # Canonical column/field definitions for CSV data contracts
+data/                       # Local per-project CSV snapshots (gitignored)
+scripts/                    # Local dev/ops scripts (gitignored)
+Dockerfile                  # Container build definition
+requirements.txt            # Python dependencies
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.11+
+- An Azure DevOps organization with:
+  - A read-only PAT (Project, Team, Work Items — read)
+  - A read/write PAT (Work Items — read/write, required only for pushing plans back)
+- An Azure OpenAI resource with a deployed chat model
+- *(Optional but recommended)* An Azure Storage account for blob-based snapshot persistence
+
+## 🔑 Environment Variables
+
+Copy `.env.example` to `.env` in the repository root and fill in your values:
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `AZURE_OPENAI_API_KEY` | Yes | Azure OpenAI API key |
+| `AZURE_OPENAI_API_ENDPOINT` | Yes | Azure OpenAI endpoint URL |
+| `AZURE_OPENAI_API_VERSION` | Yes | Azure OpenAI API version |
+| `AZURE_OPENAI_API_DEPLOYMENT` | Yes | Azure OpenAI chat model deployment name |
+| `AZURE_DEVOPS_ORGANIZATION_URL` | Yes | Base org URL, e.g. `https://dev.azure.com/your-org` |
+| `AZURE_DEVOPS_READ_ONLY_PAT` | Yes | PAT with Project/Team/Work Items **read** scope |
+| `AZURE_DEVOPS_READ_WRITE_PAT` | For push-to-ADO | PAT with Work Items **read/write** scope |
+| `AZURE_STORAGE_CONTAINER_CONNECTION_STRING` | Recommended | Connection string for the blob snapshot container |
+| `AZURE_STORAGE_CONTAINER_NAME` | Recommended | Blob container name used for snapshots |
+| `LANGSMITH_API_KEY` | Optional | Enables LangSmith tracing for the LangGraph agents |
+| `LANGCHAIN_TRACING_V2` | Optional | Set to `true` to enable LangChain/LangGraph tracing |
+| `LANGCHAIN_PROJECT` | Optional | LangSmith project name for traces |
+
+> 💡 The app can also accept the organization URL and PAT directly in the sidebar at runtime, overriding the `.env` values for that session.
+
+## ⚡ Running the App
+
+```powershell
+streamlit run ui/streamlit_app.py
+```
+
+The app opens at `http://localhost:8501`. On first load you'll be prompted for the in-app login gate before selecting an Azure DevOps project to work with.
+
+## 🐳 Docker
+
+```bash
+docker build -t ado-planner .
+docker run --env-file .env -p 8501:8501 ado-planner
+```
+
+The container installs dependencies, copies the app, and serves Streamlit on port `8501`.
+
+## 💻 Application Walkthrough
+
+### 1. Generate Sprint Plan
+Configure a sprint (name, start date, duration, focus factor, team members, leaves, daily hours), then trigger the full agent pipeline. Review the generated plan, spillover, and day-wise schedule; **Accept** to persist and unlock ADO push, or **Rebalance** with an optional natural-language instruction to iterate.
+
+### 2. Analytics View
+Velocity, workload distribution, and backlog health metrics computed deterministically, enriched with AI-generated narrative insights.
+
+### 3. Data View
+Browse normalized work items, backlog, sprints, and hierarchy relationships pulled from Azure DevOps or the latest cached/blob snapshot.
+
+> A local-only **Assignment Testing** harness also exists under `ui/tabs/test_tab/` for exercising the assignment agent in isolation during development.
+
+## 💾 Data & Persistence
+
+ADO Planner reads from Azure DevOps and caches/normalizes data through three layers, in priority order:
+
+1. **In-memory session cache** (Streamlit `session_state`) — fastest, used within a single session.
+2. **Azure Blob Storage snapshot** — durable cross-session cache per project (`sprints_meta.csv`, `work_items.csv`, `backlog.csv`, `team_members.csv`, `refresh_meta.json`).
+3. **Live Azure DevOps API fetch** — used on explicit refresh or cache miss; results are normalized and re-persisted to CSV + blob.
+
+Per-project artifacts live under `data/<project>/`:
+
+```
+data/<project>/
+  backlog.csv
+  work_items.csv
+  preprocessed_tasks.csv
+  sprints_meta.csv
+  team_members.csv
+  refresh_meta.json
+  config/<sprint_name>.json        # Sprint configuration snapshots
+  estimates/work_items_estimate.csv
+  sprints/<sprint_name>.csv         # Accepted plan snapshot
+  sprints/<sprint_name>_daywise.csv # Day-wise member schedule
+```
+
+Column contracts for each artifact are defined centrally under `schema/` (`work_items.py`, `sprints.py`, `preprocessed_tasks.py`, `work_items_estimates.py`).
+
+**Push to Azure DevOps** (from an accepted plan) will:
+1. Create the sprint iteration if it doesn't exist, and register it under team settings.
+2. Update the iteration's start/finish dates.
+3. Patch each task's iteration path, `AssignedTo`, `RemainingWork`, and `OriginalEstimate`.
+
 ---
 
-# 🧠 Design Principles
+<div align="center">
 
-The project was built around several core engineering principles:
+*Built with Python, LangGraph, and Azure OpenAI — designed to keep humans in control of every decision an AI agent makes.*
 
-- Modular Architecture
-- Agent Specialization
-- Single Source of Truth
-- Explainable AI Decisions
-- Human Oversight
-- Cloud Native Design
-- Scalability
-- Extensibility
-- Enterprise Readiness
-- Minimal Manual Intervention
-
----
+</div>
