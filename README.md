@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📋 ADO Planner
+# 📋 ADO Planner AI Agent
 
 ### AI-Assisted Sprint Planning for Azure DevOps
 
